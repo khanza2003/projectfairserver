@@ -66,3 +66,38 @@ exports.getAllProjectController=async(req,res)=>{
     }
     
 }
+//edit project
+exports.editProjectController=async(req,res)=>{
+   console.log('inside editProjectController');
+   //get project id from request parameter
+   const{id}=req.params
+   //req.body-contains only text type data
+   const {title,languages,overview,github,website,projectImage}=req.body
+   //to get file data-req file
+   const reUploadImageFileName=req.file?req.file.filename:projectImage
+   //to get userId-use jwtmiddleware
+   const userId=req.userId
+   console.log(id,title,languages,overview,github,website,reUploadImageFileName,userId);
+   try{
+    const updateProject=await  projects.findByIdAndUpdate({_id:id},{
+        title,languages,overview,github,website,projectImage:reUploadImageFileName,userId
+    },{new:true})
+    await updateProject.save()
+    res.status(200).json(updateProject)
+   }catch(err){
+    res.status(401).json(err)
+   }
+}
+
+//remove projects
+exports.removeProjectController=async(req,res)=>{
+    //1.get id of the project to be deleted from req params
+    const {id}=req.params
+    //2.delete the project from given id from model
+    try{
+        const removeProject=await projects.findByIdAndDelete({_id:id})
+        res.status(200).json(removeProject)
+    }catch(err){
+        res.status(401).json(err)
+    }
+}
